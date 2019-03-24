@@ -12,7 +12,7 @@
 #include "./ft_printf/printf/libftprintf.h" 
 #define ALF "-ABCFGHLOPRSTUWabcdefghiklmnopqrstuwx1"
 
-typedef struct  dirent	t_dir;
+typedef struct dirent	t_dir;
 typedef struct winsize	t_win;
 typedef struct stat		t_stat;
 typedef struct dirent	t_dir;
@@ -21,11 +21,13 @@ typedef struct group	t_group;
 
 typedef struct          s_ls
 {
+	int					one;
     int                 R;
     int                 l;
     int                 a;
     int                 r;
     int                 t;
+	int					l_f;
     int                 dash;
     char                **path;
     char                **files;

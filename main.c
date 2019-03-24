@@ -34,11 +34,6 @@ int	ft_count_words(t_ls flags)
 	return(i);
 }
 
-int	ft_isupper(int c)
-{
-	return (c >= 65 && c <= 90);
-}
-
 void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 {
 	int 	i;
@@ -61,7 +56,7 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 	j = -1;
 	while (++j < nbr_rows)
 		flags.table[j] = (char**)malloc(sizeof(char*) * (nbr_words + 1));
-	if (!flags.r)
+	if (!flags.r && !flags.one)
 	{
 		while(i < nbr_words_in_row * nbr_rows)
 		{
@@ -79,7 +74,7 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 			k++;
 		}
 	}
-	else
+	else if (flags.files[0] && !flags.one)
 	{
 		i = nbr_words - 1;
 		while(i > -1)
@@ -133,7 +128,7 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 				ft_printf("%s\n",flags.files[i]);
 			}
 		}
-		else
+		else if (flags.files[0])
 		{
 			ft_printf("total %d\n", flags.block);
 			while(flags.files[++i])
@@ -165,7 +160,10 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 			}
 		}	
 	}
-	else
+	if (flags.one)
+		while(++i < nbr_words)
+			ft_printf("%s\n",flags.files[i]);
+	else if (flags.files[0])
 	{
 		while (flags.table[++i])
 		{
@@ -190,17 +188,17 @@ void 	ft_sort_alph_and_print(t_ls flags, int nbr_words_in_row, int max_len)
 	int nbr_words;
 	
 	nbr_words = ft_count_words(flags);
-	i = nbr_words;
-	while (i--)
+	i = -1;
+	while (++i < nbr_words)
 	{
-		j = nbr_words;
-		while (j--)
-			if(ft_isupper(flags.files[j][0]) && 
-			(ft_strcmp(flags.files[i], flags.files[j]) &&
-			!ft_strchr(".", flags.files[i][0])))
+		j = -1;
+		while (++j < nbr_words -1)
+		{
+			if((ft_strcmp(flags.files[j], flags.files[j + 1]) > 0 &&
+			!ft_strchr(".", flags.files[j][0])))
 			{
-				tmp = flags.files[i];
-				flags.files[i] = flags.files[j];
+				tmp = flags.files[j + 1];
+				flags.files[j + 1] = flags.files[j];
 				flags.files[j] = tmp;
 				if (flags.l)
 				{
@@ -229,6 +227,7 @@ void 	ft_sort_alph_and_print(t_ls flags, int nbr_words_in_row, int max_len)
 					flags.group[j] = tmp;
 				}
 			}
+		}
 	}
 	ft_make_table(flags, nbr_words, nbr_words_in_row, max_len);
 }
@@ -249,7 +248,8 @@ void    ft_print_files(t_ls flags)
 		nbr_words_in_row = term_len/max_len;
 	ft_sort_alph_and_print(flags, nbr_words_in_row , max_len);
     i = -1;
-    while(flags.files[++i])
+	j = ft_count_words(flags);
+    while(++i < j)
         free(flags.files[i]);
 }
 
@@ -322,7 +322,13 @@ void    ft_get_files(char *dir_name, t_ls flags)
 	struct group  *gr;
 
     j = -1;
-    if(!(dir = opendir(dir_name)))
+	stat(dir_name, &buff);
+	if(!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR) && !(buff.st_mode & S_IXUSR))
+	{
+        ft_printf("ls: %s: Permisson denied\n", (dir_name + 3));
+        return ;
+    }
+    if(!(dir = opendir(dir_name)) && S_ISDIR(buff.st_mode))
     {
         ft_printf("ls: %s: No such file or directory\n", dir_name);
         return ;
@@ -351,6 +357,8 @@ void    ft_get_files(char *dir_name, t_ls flags)
 	}
     flags.files[++j] = NULL;
 	closedir(dir);
+	if (!(flags.files[0]))
+		return ;
     ft_print_files(flags);
 }
 
@@ -373,9 +381,11 @@ void     ft_get_files_R(char *dir_name, t_ls flags)
 			if (ent->d_name[0] != '.' || flags.a)
             	path = ft_strjoin(path, ent->d_name);
 			else
-				continue;
-            ft_printf("\n%s\n",ft_strjoin(path,":"));
-            ft_get_files_R(path, flags);
+				continue;	
+			ft_printf("\n%c%c",path[0], path[1]);
+			ft_printf("%s", path + 3);
+			ft_printf("%s\n",":");
+			ft_get_files_R(path, flags);
         }
     }
     closedir(dir);
@@ -388,7 +398,9 @@ void    ft_push_struct(t_ls *flags)
     flags->a = 0;
     flags->r = 0;
     flags->t = 0;
+	flags->one = 0;
     flags->dash = 0;
+	flags->l_f = 0;
 	flags->sizes = (char**)malloc(sizeof(char*) * 1024);
     flags->path = (char**)malloc(sizeof(char*) * 1024);
     flags->files = (char**)malloc(sizeof(char*) * 1024);
@@ -424,7 +436,10 @@ void    ft_set_flags(t_ls *flags, const char **av)
 					if (av[i][j] == 't') 
 						flags->t = 1;
 					if (av[i][j] == '-') 
-						flags->dash = 1;
+						flags->dash += 1;
+					if (av[i][j] == '1') 
+						flags->one = 1;
+					flags->l_f = i;
 				}
 				else
 				    ft_printf("usage: ls [%s] [file ...]", ALF);
@@ -453,23 +468,23 @@ void ft_parse_dirs(t_ls *flags, const char **av)
     int     i;
     int     j;
 
-    i = 0;
+    i = flags->l_f;
     j = -1;
     while (av[++i])
-    {
-        if (av[i][0] != '-' )
-            flags->path[++j] = ft_strdup(av[i]);
-    } 
+        flags->path[++j] = ft_strdup(av[i]);
 }
 
 int main(int ac, const char **av)
 {
     int     i;
     int     j;
+	int		dir_nbr;
     t_ls    flags;
+	t_stat	buff;
 
     i = 0;
     j = -1;
+	dir_nbr = -1;
     ft_push_struct(&flags);
     ft_parse_flags(&flags, av);
     if (ac == 1)
@@ -477,24 +492,66 @@ int main(int ac, const char **av)
         ft_get_files("./", flags);
         return (0);
     }
-    ft_parse_dirs(&flags, av);  
+    ft_parse_dirs(&flags, av);
     j = -1;
     if (flags.R)
     {   
         if (!(flags.path[++j]))
             ft_get_files_R("./", flags);
-        j = -1;
+        i = -1;
+		while(flags.path[++i])
+		{
+			stat(flags.path[i], &buff);
+			if (!S_ISDIR(buff.st_mode))
+				ft_printf("%s\n",flags.path[i]);
+			else
+				dir_nbr += 1;
+		}
+		if (dir_nbr != (i - 1))
+			ft_printf("\n");
+		j = -1;
         while (flags.path[++j])
-        {
-			ft_printf("\n%s:\n", flags.path[j]);
-            ft_get_files_R(flags.path[j], flags);
-        }
+		{
+			stat(flags.path[j], &buff);
+			if (S_ISDIR(buff.st_mode))
+			{
+				ft_printf("%s:\n", flags.path[j]);
+				ft_get_files_R(flags.path[j], flags);
+				if (dir_nbr--)
+					ft_printf("\n");
+			}
+		}
 		return (0);
     }
     if (!(flags.path[++j]))
             ft_get_files("./", flags);
+	i = -1;
+	while(flags.path[++i])
+	{
+		stat(flags.path[i], &buff);
+		if (!S_ISDIR(buff.st_mode))
+			ft_printf("%s\n",flags.path[i]);
+		else
+			dir_nbr += 1;
+	}
 	j = -1;
-    while (flags.path[++j])
+	if ((flags.one))
+	{
+		while (flags.path[++j])
+		{
+			{
+				stat(flags.path[j], &buff);
+				if (S_ISDIR(buff.st_mode))
+				{
+					ft_printf("%s:\n", flags.path[j]);
+					ft_get_files(flags.path[j], flags);
+				}
+				if (dir_nbr--)
+					ft_printf("\n");
+			}
+		}
+	}
+	while (flags.path[++j])
 	{
 		ft_printf("\n%s:\n", flags.path[j]);
         ft_get_files(flags.path[j], flags);
