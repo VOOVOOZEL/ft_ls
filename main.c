@@ -56,7 +56,7 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 	j = -1;
 	while (++j < nbr_rows)
 		flags.table[j] = (char**)malloc(sizeof(char*) * (nbr_words + 1));
-	if (!flags.r && !flags.one)
+	if (!flags.r && !flags.one && !flags.l)
 	{
 		while(i < nbr_words_in_row * nbr_rows)
 		{
@@ -74,7 +74,7 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 			k++;
 		}
 	}
-	else if (flags.files[0] && !flags.one)
+	else if (flags.files[0] && !flags.one && !flags.l)
 	{
 		i = nbr_words - 1;
 		while(i > -1)
@@ -127,8 +127,9 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 				ft_printf("%s %s %s ", date.month, date.day, date.time);
 				ft_printf("%s\n",flags.files[i]);
 			}
+			return ;
 		}
-		else if (flags.files[0])
+		else 
 		{
 			ft_printf("total %d\n", flags.block);
 			while(flags.files[++i])
@@ -149,20 +150,31 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 
 				ft_printf("%s ", flags.acc_right[i]);
 				int len_links = ft_find_len_for_output(flags.hd_links, 1);
-				ft_printf("%-*s ", len_links, flags.hd_links[i]);
+				ft_printf("%*s ", len_links, flags.hd_links[i]);
 				int len_owner = ft_find_len_for_output(flags.owner, 10);
 				ft_printf("%-*s",len_owner ,flags.owner[i]);
-				int len_sizes = ft_find_len_for_output(flags.sizes, 8);
+				int len_sizes = ft_find_len_for_output(flags.sizes, 2);
 				ft_printf("%s ", flags.group[i]);
-				ft_printf("%*s ",(len_sizes - 1), flags.sizes[i]);
+				ft_printf("%*s ",(len_sizes), flags.sizes[i]);
 				ft_printf("%s %s %s ", date.month, date.day, date.time);
 				ft_printf("%s\n",flags.files[i]);
 			}
+			return ;
 		}	
 	}
 	if (flags.one)
-		while(++i < nbr_words)
-			ft_printf("%s\n",flags.files[i]);
+	{
+		if (flags.r)
+		{
+			while(nbr_words--)
+				ft_printf("%s\n",flags.files[nbr_words]);
+		}
+		else
+		{
+			while(++i < nbr_words)
+				ft_printf("%s\n",flags.files[i]);
+		}
+	}
 	else if (flags.files[0])
 	{
 		while (flags.table[++i])
@@ -325,7 +337,7 @@ void    ft_get_files(char *dir_name, t_ls flags)
 	stat(dir_name, &buff);
 	if(!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR) && !(buff.st_mode & S_IXUSR))
 	{
-        ft_printf("ls: %s: Permisson denied\n", (dir_name + 3));
+        ft_printf("ls: %s: Permisson denied\n", (dir_name));
         return ;
     }
     if(!(dir = opendir(dir_name)) && S_ISDIR(buff.st_mode))
@@ -333,32 +345,57 @@ void    ft_get_files(char *dir_name, t_ls flags)
         ft_printf("ls: %s: No such file or directory\n", dir_name);
         return ;
     }
-    while ((ent=readdir(dir)))
+	//printf("223e32\n");
+	if(!(dir = opendir(dir_name)))
 	{
-        if (ent->d_name[0] != '.' || flags.a)
+		j++;
+		if (!stat(dir_name, &buff))
 		{
-        	flags.files[++j] = ft_strdup(ent->d_name);
-			if (flags.l)
+			flags.files[j] = ft_strdup(dir_name);
+			flags.sizes[j] = ft_itoa(buff.st_size);
+			flags.times[j] = ft_strdup(ctime(&buff.st_mtime));
+			flags.hd_links[j] = ft_itoa(buff.st_nlink);
+			pw = getpwuid(buff.st_uid);
+			flags.owner[j] = pw->pw_name;
+			gr = getgrgid(buff.st_gid);
+			flags.group[j] = gr->gr_name;
+			//flags.acc_right[j] = ft_get_acc_rights(&((t_dir*)dir_name), buff);
+			//flags.block += buff.st_blocks;
+		}
+	}
+	else
+	{
+		while ((ent=readdir(dir)))
+		{
+			if (ent->d_name[0] != '.' || flags.a)
 			{
-				if (!stat(ft_strjoin(path,ent->d_name),&buff))
+				printf("%s\n", ent->d_name);
+				flags.files[++j] = ft_strdup(ent->d_name);
+				if (flags.l)
 				{
-                	flags.sizes[j] = ft_itoa(buff.st_size);
-					flags.times[j] = ft_strdup(ctime(&buff.st_mtime));
-					flags.hd_links[j] = ft_itoa(buff.st_nlink);
-					pw = getpwuid(buff.st_uid);
-					flags.owner[j] = pw->pw_name;
-					gr = getgrgid(buff.st_gid);
-					flags.group[j] = gr->gr_name;
-					flags.acc_right[j] = ft_get_acc_rights(*ent, buff);
-					flags.block += buff.st_blocks;
+					if (!stat(ft_strjoin(path,ent->d_name),&buff))
+					{
+						flags.sizes[j] = ft_itoa(buff.st_size);
+						flags.times[j] = ft_strdup(ctime(&buff.st_mtime));
+						flags.hd_links[j] = ft_itoa(buff.st_nlink);
+						pw = getpwuid(buff.st_uid);
+						flags.owner[j] = pw->pw_name;
+						gr = getgrgid(buff.st_gid);
+						flags.group[j] = gr->gr_name;
+						flags.acc_right[j] = ft_get_acc_rights(*ent, buff);
+						flags.block += buff.st_blocks;
+					}
 				}
 			}
 		}
+		flags.files[++j] = NULL;
+		closedir(dir);
 	}
-    flags.files[++j] = NULL;
-	closedir(dir);
+    // flags.files[++j] = NULL;
+	// closedir(dir);
 	if (!(flags.files[0]))
 		return ;
+	printf("zdes\n");
     ft_print_files(flags);
 }
 
@@ -367,27 +404,46 @@ void     ft_get_files_R(char *dir_name, t_ls flags)
     DIR         *dir;
     t_dir       *ent;
     char        *path;
-    int         j;
+	char		**gen_path;
+	int			i;
 
-    j = -1;
+	i = -1;
     ft_get_files(dir_name, flags);
     if(!(dir = opendir(dir_name)))
         return ;
+	gen_path = (char**)malloc(sizeof(char*) * 1024);
     while ((ent=readdir(dir)))
     {
         if (ent->d_type == DT_DIR && ft_strcmp(ent->d_name, ".") && ft_strcmp(ent->d_name, ".."))
         {
             path = ft_strjoin(dir_name, "/");
 			if (ent->d_name[0] != '.' || flags.a)
-            	path = ft_strjoin(path, ent->d_name);
+			{
+            	gen_path[++i] = ft_strjoin(path, ent->d_name);
+				free(path);
+			}
 			else
-				continue;	
-			ft_printf("\n%c%c",path[0], path[1]);
-			ft_printf("%s", path + 3);
-			ft_printf("%s\n",":");
-			ft_get_files_R(path, flags);
+				continue;
         }
     }
+	if (flags.r)
+	{
+		while(gen_path[i])
+		{
+			ft_printf("\n%c%c%s%s\n",gen_path[i][0], gen_path[i][1], (gen_path[i] + 3), ":");
+			ft_get_files_R(gen_path[i], flags);
+			i--;
+		}
+	}
+	else
+	{
+		i = -1;
+		while(gen_path[++i])
+		{
+			ft_printf("\n%c%c%s%s\n",gen_path[i][0], gen_path[i][1], (gen_path[i] + 3), ":");
+			ft_get_files_R(gen_path[i], flags);
+		}
+	}
     closedir(dir);
 }
 
@@ -403,6 +459,7 @@ void    ft_push_struct(t_ls *flags)
 	flags->l_f = 0;
 	flags->sizes = (char**)malloc(sizeof(char*) * 1024);
     flags->path = (char**)malloc(sizeof(char*) * 1024);
+	flags->r_path = (char**)malloc(sizeof(char*) * 1024);
     flags->files = (char**)malloc(sizeof(char*) * 1024);
 	flags->times = (char**)malloc(sizeof(char*) * 1024);
 	flags->hd_links = (char**)malloc(sizeof(char*) * 1024);
@@ -529,7 +586,7 @@ int main(int ac, const char **av)
 	while(flags.path[++i])
 	{
 		stat(flags.path[i], &buff);
-		if (!S_ISDIR(buff.st_mode))
+		if (!S_ISDIR(buff.st_mode) && !flags.l)
 			ft_printf("%s\n",flags.path[i]);
 		else
 			dir_nbr += 1;
@@ -543,17 +600,27 @@ int main(int ac, const char **av)
 				stat(flags.path[j], &buff);
 				if (S_ISDIR(buff.st_mode))
 				{
-					ft_printf("%s:\n", flags.path[j]);
+					if (dir_nbr > 0)
+						ft_printf("%s:\n", flags.path[j]);
 					ft_get_files(flags.path[j], flags);
 				}
-				if (dir_nbr--)
-					ft_printf("\n");
+				if (dir_nbr == (i - 1))
+				{ 
+					if (dir_nbr - j)
+						ft_printf("\n");
+				}
 			}
 		}
 	}
-	while (flags.path[++j])
+	while (flags.path[++j] && !flags.l)
 	{
 		ft_printf("\n%s:\n", flags.path[j]);
+        ft_get_files(flags.path[j], flags);
+	}
+	j = -1;
+	while (flags.path[++j])
+	{
+		printf("dfsfds\n");
         ft_get_files(flags.path[j], flags);
 	}
 }

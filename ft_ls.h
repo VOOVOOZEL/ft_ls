@@ -38,6 +38,7 @@ typedef struct          s_ls
 	char				**owner;
 	char				**group;
 	char				**hd_links;
+	char				**r_path;
 	int					block;
 }                       t_ls;
 
