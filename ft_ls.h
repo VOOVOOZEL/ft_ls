@@ -32,7 +32,8 @@ typedef struct          s_ls
     char                **path;
     char                **files;
 	char				***table;
-	char				**times;
+	time_t				*times;
+	//char				**times;
 	char				**acc_right;
 	char				**sizes;
 	char				**owner;

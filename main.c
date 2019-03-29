@@ -100,30 +100,30 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 		{
 			i = nbr_words;
 			ft_printf("total %d\n", flags.block);
-			while(--i)
+			while(i--)
 			{
-				date.month[0] = flags.times[i][4];
-				date.month[1] = flags.times[i][5];
-				date.month[2] = flags.times[i][6];
+				date.month[0] = ctime(&flags.times[i])[4];
+				date.month[1] = ctime(&flags.times[i])[5];
+				date.month[2] = ctime(&flags.times[i])[6];
 				date.month[3] = 0;
-				date.day[0] = flags.times[i][8];
-				date.day[1] = flags.times[i][9];
+				date.day[0] = ctime(&flags.times[i])[8];
+				date.day[1] = ctime(&flags.times[i])[9];
 				date.day[2] = 0;
-				date.time[0] = flags.times[i][11];
-				date.time[1] = flags.times[i][12];
-				date.time[2] = flags.times[i][13];
-				date.time[3] = flags.times[i][14];
-				date.time[4] = flags.times[i][15];
+				date.time[0] = ctime(&flags.times[i])[11];
+				date.time[1] = ctime(&flags.times[i])[12];
+				date.time[2] = ctime(&flags.times[i])[13];
+				date.time[3] = ctime(&flags.times[i])[14];
+				date.time[4] = ctime(&flags.times[i])[15];
 				date.time[5] = 0;
 
 				ft_printf("%s ", flags.acc_right[i]);
 				int len_links = ft_find_len_for_output(flags.hd_links, 1);
-				ft_printf("%*s ", len_links, flags.hd_links[i]);
+				ft_printf("%*s ", (len_links), flags.hd_links[i]);
 				int len_owner = ft_find_len_for_output(flags.owner, 10);
 				ft_printf("%-*s",len_owner ,flags.owner[i]);
 				int len_sizes = ft_find_len_for_output(flags.sizes, 1);
 				ft_printf("%s ", flags.group[i]);
-				ft_printf("%*s ",(len_sizes - 1), flags.sizes[i]);
+				ft_printf("%*s ",(len_sizes+1), flags.sizes[i]);
 				ft_printf("%s %s %s ", date.month, date.day, date.time);
 				ft_printf("%s\n",flags.files[i]);
 			}
@@ -134,18 +134,18 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 			ft_printf("total %d\n", flags.block);
 			while(flags.files[++i])
 			{
-				date.month[0] = flags.times[i][4];
-				date.month[1] = flags.times[i][5];
-				date.month[2] = flags.times[i][6];
+				date.month[0] = ctime(&flags.times[i])[4];
+				date.month[1] = ctime(&flags.times[i])[5];
+				date.month[2] = ctime(&flags.times[i])[6];
 				date.month[3] = 0;
-				date.day[0] = flags.times[i][8];
-				date.day[1] = flags.times[i][9];
+				date.day[0] = ctime(&flags.times[i])[8];
+				date.day[1] = ctime(&flags.times[i])[9];
 				date.day[2] = 0;
-				date.time[0] = flags.times[i][11];
-				date.time[1] = flags.times[i][12];
-				date.time[2] = flags.times[i][13];
-				date.time[3] = flags.times[i][14];
-				date.time[4] = flags.times[i][15];
+				date.time[0] = ctime(&flags.times[i])[11];
+				date.time[1] = ctime(&flags.times[i])[12];
+				date.time[2] = ctime(&flags.times[i])[13];
+				date.time[3] = ctime(&flags.times[i])[14];
+				date.time[4] = ctime(&flags.times[i])[15];
 				date.time[5] = 0;
 
 				ft_printf("%s ", flags.acc_right[i]);
@@ -196,46 +196,94 @@ void 	ft_sort_alph_and_print(t_ls flags, int nbr_words_in_row, int max_len)
 	int i;
 	int	j;
 	char *tmp;
+	time_t	tmp1;
 	int nbr_words;
 	
 	nbr_words = ft_count_words(flags);
+	//printf("%nbr d\n")
 	i = -1;
-	while (++i < nbr_words)
+	if (flags.t)
 	{
-		j = -1;
-		while (++j < nbr_words -1)
+		while (++i < nbr_words)
 		{
-			if((ft_strcmp(flags.files[j], flags.files[j + 1]) > 0 &&
-			!ft_strchr(".", flags.files[j][0])))
+			j = -1;
+			while (++j < nbr_words - 1)
 			{
-				tmp = flags.files[j + 1];
-				flags.files[j + 1] = flags.files[j];
-				flags.files[j] = tmp;
-				if (flags.l)
+				if(((flags.times[j]) < flags.times[j + 1]))
 				{
-					tmp = flags.sizes[i];
-					flags.sizes[i] = flags.sizes[j];
-					flags.sizes[j] = tmp;
-					
-					tmp = flags.hd_links[i];
-					flags.hd_links[i] = flags.hd_links[j];
-					flags.hd_links[j] = tmp;
-					
-					tmp = flags.owner[i];
-					flags.owner[i] = flags.owner[j];
-					flags.owner[j] = tmp;
+					//printf("pipa2\n");
+					tmp = flags.files[j + 1];
+					flags.files[j + 1] = flags.files[j];
+					flags.files[j] = tmp;
 
-					tmp = flags.times[i];
-					flags.times[i] = flags.times[j];
-					flags.times[j] = tmp;
+					tmp1 = flags.times[j + 1];
+					flags.times[j + 1] = flags.times[j];
+					flags.times[j] = tmp1;
+					if (flags.l)
+					{
+						tmp = flags.sizes[j + 1];
+						flags.sizes[j + 1] = flags.sizes[j];
+						flags.sizes[j] = tmp;
+						
+						tmp = flags.hd_links[j + 1];
+						flags.hd_links[j + 1] = flags.hd_links[j];
+						flags.hd_links[j] = tmp;
+						
+						tmp = flags.owner[j + 1];
+						flags.owner[j + 1] = flags.owner[j];
+						flags.owner[j] = tmp;
 
-					tmp = flags.acc_right[i];
-					flags.acc_right[i] = flags.acc_right[j];
-					flags.acc_right[j] = tmp;
+						tmp = flags.acc_right[j + 1];
+						flags.acc_right[j + 1] = flags.acc_right[j];
+						flags.acc_right[j] = tmp;
 
-					tmp = flags.group[i];
-					flags.group[i] = flags.group[j];
-					flags.group[j] = tmp;
+						tmp = flags.group[j + 1];
+						flags.group[j + 1] = flags.group[j];
+						flags.group[j] = tmp;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		while (++i < nbr_words)
+		{
+			j = -1;
+			while (++j < nbr_words -1)
+			{
+				if((ft_strcmp(flags.files[j], flags.files[j + 1]) > 0 &&
+				!ft_strchr(".", flags.files[j][0])))
+				{
+					tmp = flags.files[j + 1];
+					flags.files[j + 1] = flags.files[j];
+					flags.files[j] = tmp;
+					if (flags.l)
+					{
+						tmp = flags.sizes[j + 1];
+						flags.sizes[j + 1] = flags.sizes[j];
+						flags.sizes[j] = tmp;
+						
+						tmp = flags.hd_links[j + 1];
+						flags.hd_links[j + 1] = flags.hd_links[j];
+						flags.hd_links[j] = tmp;
+						
+						tmp = flags.owner[j + 1];
+						flags.owner[j + 1] = flags.owner[j];
+						flags.owner[j] = tmp;
+
+						tmp1 = flags.times[i];
+						flags.times[j + 1] = flags.times[j];
+						flags.times[j] = tmp1;
+
+						tmp = flags.acc_right[i];
+						flags.acc_right[j + 1] = flags.acc_right[j];
+						flags.acc_right[j] = tmp;
+
+						tmp = flags.group[i];
+						flags.group[j + 1] = flags.group[j];
+						flags.group[j] = tmp;
+					}
 				}
 			}
 		}
@@ -371,7 +419,7 @@ void    ft_get_files(char *dir_name, t_ls flags)
 		{
 			flags.files[j] = ft_strdup(dir_name);
 			flags.sizes[j] = ft_itoa(buff.st_size);
-			flags.times[j] = ft_strdup(ctime(&buff.st_mtime));
+			flags.times[j] = buff.st_mtime;
 			flags.hd_links[j] = ft_itoa(buff.st_nlink);
 			pw = getpwuid(buff.st_uid);
 			flags.owner[j] = pw->pw_name;
@@ -388,28 +436,26 @@ void    ft_get_files(char *dir_name, t_ls flags)
 		if (ent->d_name[0] != '.' || flags.a)
 		{
 			flags.files[++j] = ft_strdup(ent->d_name);
-			if (flags.l)
+			if (!lstat(ft_strjoin(path,ent->d_name),&buff))
 			{
-				if (!lstat(ft_strjoin(path,ent->d_name),&buff))
+				if (ent->d_type == DT_LNK)
 				{
-					if (ent->d_type == DT_LNK)
-					{
-						char *buffer;
-						readlink (ft_strjoin(path,ent->d_name), buffer, 100);
-						flags.files[j] = ft_strjoin(flags.files[j]," -> ");
-						flags.files[j] = ft_strjoin(flags.files[j], buffer);
-					}
-					flags.sizes[j] = ft_itoa(buff.st_size);
-					flags.times[j] = ft_strdup(ctime(&buff.st_mtime));
-					flags.hd_links[j] = ft_itoa(buff.st_nlink);
-					pw = getpwuid(buff.st_uid);
-					flags.owner[j] = pw->pw_name;
-					gr = getgrgid(buff.st_gid);
-					flags.group[j] = gr->gr_name;
-					flags.acc_right[j] = ft_get_acc_rights(*ent, buff);
-					flags.block += buff.st_blocks;
+					char *buffer;
+					readlink (ft_strjoin(path,ent->d_name), buffer, 100);
+					flags.files[j] = ft_strjoin(flags.files[j]," -> ");
+					flags.files[j] = ft_strjoin(flags.files[j], buffer);
 				}
+				flags.sizes[j] = ft_itoa(buff.st_size);
+				flags.times[j] = buff.st_mtime;
+				flags.hd_links[j] = ft_itoa(buff.st_nlink);
+				pw = getpwuid(buff.st_uid);
+				flags.owner[j] = pw->pw_name;
+				gr = getgrgid(buff.st_gid);
+				flags.group[j] = gr->gr_name;
+				flags.acc_right[j] = ft_get_acc_rights(*ent, buff);
+				flags.block += buff.st_blocks;
 			}
+			
 		}
 	}
     flags.files[++j] = NULL;
@@ -441,7 +487,6 @@ void     ft_get_files_R(char *dir_name, t_ls flags)
 			{
             	gen_path[++i] = ft_strjoin(path, ent->d_name);
 				free(path);
-				gen_path[i + 1] = 0;
 			}
 			else
 				continue;
@@ -483,7 +528,7 @@ void    ft_push_struct(t_ls *flags)
     flags->path = (char**)malloc(sizeof(char*) * 1024);
 	flags->r_path = (char**)malloc(sizeof(char*) * 1024);
     flags->files = (char**)malloc(sizeof(char*) * 1024);
-	flags->times = (char**)malloc(sizeof(char*) * 1024);
+	flags->times = (time_t*)malloc(sizeof(time_t) * 1024);
 	flags->hd_links = (char**)malloc(sizeof(char*) * 1024);
 	flags->owner = (char**)malloc(sizeof(char*) * 1024);
 	flags->acc_right = (char**)malloc(sizeof(char*) * 1024);
