@@ -71,16 +71,4 @@ void	ft_push_struct(t_ls *flags)
 	flags->l_f = 0;
 	flags->fls = -1;
 	flags->block = 0;
-	flags->sizes = (char**)malloc(sizeof(char*) * 1024);
-	flags->p_st_m = (int*)malloc(sizeof(int) * 1024);
-	flags->path = (char**)malloc(sizeof(char*) * 1024);
-	flags->r_path = (char**)malloc(sizeof(char*) * 1024);
-	flags->files = (char**)malloc(sizeof(char*) * 1024);
-	flags->times = (time_t*)malloc(sizeof(time_t) * 1024);
-	flags->ctimes = (time_t*)malloc(sizeof(time_t) * 1024);
-	flags->atimes = (time_t*)malloc(sizeof(time_t) * 1024);
-	flags->hd_links = (char**)malloc(sizeof(char*) * 1024);
-	flags->owner = (char**)malloc(sizeof(char*) * 1024);
-	flags->acc_right = (char**)malloc(sizeof(char*) * 1024);
-	flags->group = (char**)malloc(sizeof(char*) * 1024);
 }

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   swap_sort.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lbrown-b <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/04/05 12:38:51 by lbrown-b          #+#    #+#             */
+/*   Updated: 2019/04/05 12:38:53 by lbrown-b         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_ls.h"
 
 void	ft_swap(char **s1, char **s2)
@@ -34,6 +46,23 @@ void	ft_swap_fields(t_ls *flags, int j)
 	}
 }
 
+void	ft_sort_time(int nbr_words, t_ls flags)
+{
+	int i;
+	int j;
+
+	i = -1;
+	while (++i < nbr_words)
+	{
+		j = -1;
+		while (++j < nbr_words - 1)
+		{
+			if ((flags.t && ((flags.times[j]) < flags.times[j + 1])))
+				ft_swap_fields(&flags, j);
+		}
+	}
+}
+
 void	ft_sort_alph_and_print(t_ls flags, int nbr_words_in_row, int max_len)
 {
 	int i;
@@ -53,36 +82,6 @@ void	ft_sort_alph_and_print(t_ls flags, int nbr_words_in_row, int max_len)
 		}
 	}
 	i = -1;
-	while (++i < nbr_words)
-	{
-		j = -1;
-		while (++j < nbr_words - 1)
-		{
-			if ((flags.t && ((flags.times[j]) < flags.times[j + 1])))
-				ft_swap_fields(&flags, j);
-		}
-	}
-	i = -1;
+	ft_sort_time(nbr_words, flags);
 	ft_make_table(flags, nbr_words, nbr_words_in_row, max_len);
-}
-
-void	ft_print_files(t_ls flags)
-{
-	int	i;
-	int	j;
-	int	max_len;
-	int	term_len;
-	int	nbr_words_in_row;
-
-	i = -1;
-	j = -1;
-	max_len = ft_find_len_for_output(flags.files, 8);
-	term_len = ft_size_term();
-	if (max_len)
-		nbr_words_in_row = term_len / max_len;
-	ft_sort_alph_and_print(flags, nbr_words_in_row, max_len);
-	i = -1;
-	j = ft_count_words(flags);
-	while (++i < j)
-		free(flags.files[i]);
 }

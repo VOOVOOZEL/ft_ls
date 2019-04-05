@@ -1,42 +1,55 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handlers.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lbrown-b <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/04/05 12:54:11 by lbrown-b          #+#    #+#             */
+/*   Updated: 2019/04/05 12:54:13 by lbrown-b         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_ls.h"
 
-void ft_parse_dirs(t_ls *flags, const char **av)
+void	ft_parse_dirs(t_ls *flags, const char **av)
 {
-    int     i;
-    int     j;
+	int		i;
+	int		j;
 	t_stat	buff;
 
-    i = flags->l_f;
-    j = -1;
-    while (av[++i])
+	i = flags->l_f;
+	j = -1;
+	while (av[++i])
 	{
-        flags->path[++j] = ft_strdup(av[i]);
+		flags->path[++j] = ft_strdup(av[i]);
 		stat(flags->path[j], &buff);
 		flags->p_st_m[j] = buff.st_mode;
 	}
 	flags->path[++j] = NULL;
 }
 
-int ft_count_dirs(t_ls *flags, t_stat buff)
+int		ft_count_dirs(t_ls *flags, t_stat buff)
 {
-	int dir_nbr;
+	int	dir_nbr;
 
 	dir_nbr = -1;
-	while(flags->path[++flags->fls])
+	while (flags->path[++flags->fls])
 	{
 		lstat(flags->path[flags->fls], &buff);
-		if (!S_ISDIR(buff.st_mode) && !flags->l && (buff.st_mode && buff.st_mode != 41453))
-			ft_printf("%s\n",flags->path[flags->fls]);
+		if (!S_ISDIR(buff.st_mode) && !flags->l
+		&& (buff.st_mode && buff.st_mode != 41453))
+			ft_printf("%s\n", flags->path[flags->fls]);
 		else
 			dir_nbr += 1;
 	}
-	return dir_nbr;
+	return (dir_nbr);
 }
 
-void ft_handle_r(t_ls flags, t_stat buff)
+void	ft_handle_r(t_ls flags, t_stat buff)
 {
-    int     j;
-	int		dir_nbr;
+	int	j;
+	int	dir_nbr;
 
 	j = -1;
 	if (!(flags.path[++j]))
@@ -57,12 +70,12 @@ void ft_handle_r(t_ls flags, t_stat buff)
 				ft_printf("\n");
 		}
 	}
-	exit (0);
+	exit(0);
 }
 
-void ft_handle_one(t_ls flags, int dir_nbr)
+void	ft_handle_one(t_ls flags, int dir_nbr)
 {
-	int j;
+	int		j;
 	t_stat	buff;
 
 	j = -1;
@@ -92,7 +105,7 @@ void	ft_handle_common(t_ls *flags, int dir_nbr)
 		if (j > 0)
 			ft_printf("%s:\n", flags->path[j]);
 		flags->cur_dir = j;
-        ft_get_files(flags->path[j], *flags);
+		ft_get_files(flags->path[j], *flags);
 		if (dir_nbr - j > 0)
 			ft_printf("\n");
 	}

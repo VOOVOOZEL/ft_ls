@@ -4,7 +4,7 @@ HEADER = ft_ls.h
 
 FLAGS = -Wall -Werror -Wextra
 
-SOURCES  =	main.c helpers.c handlers.c get_files.c set_data.c create_table.c parse_date.c swap_sort.c detailed_list.c set_flags.c
+SOURCES  =	main.c helpers.c handlers.c get_files.c set_data.c create_table.c parse_date.c swap_sort.c detailed_list.c set_flags.c helpers2.c
 
 LIB = libftprintf.a
 

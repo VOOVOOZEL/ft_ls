@@ -94,13 +94,13 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 	int		nbr_rows;
 
 	nbr_rows = ft_get_nbr_rows(nbr_words, nbr_words_in_row, max_len);
-	ft_create_table(nbr_rows, nbr_words, &flags, nbr_words_in_row);
+	if (!(flags.l) && (!(flags.one)))
+		ft_create_table(nbr_rows, nbr_words, &flags, nbr_words_in_row);
 	if (flags.l)
 	{
 		ft_detailed_list(flags, nbr_words);
 		return ;
 	}
-	i = -1;
 	if (flags.one)
 	{
 		ft_print_column(flags, nbr_words);
@@ -108,12 +108,18 @@ void ft_make_table(t_ls flags, int nbr_words, int nbr_words_in_row, int max_len)
 	}
 	else if (!flags.one && !flags.l)
 	{
+		i = -1;
 		while (flags.table[++i])
 		{
 			j = -1;
 			while(flags.table[i][++j])
+			{
 				ft_printf("%-*s",max_len,flags.table[i][j]);
+				free(flags.table[i][j]);
+			}
 			ft_printf("\n");
+			free(flags.table[i]);
 		}
 	}
+	free(flags.table);
 }

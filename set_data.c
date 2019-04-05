@@ -1,24 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   set_data.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lbrown-b <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/04/05 12:43:14 by lbrown-b          #+#    #+#             */
+/*   Updated: 2019/04/05 12:43:16 by lbrown-b         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_ls.h"
 
-char		ft_check_xrights(char *fpath)
-{
-	int		xattrs;
-	acl_t	acl;
-
-	xattrs = (int)listxattr(fpath, NULL, 1, XATTR_NOFOLLOW);
-	if (xattrs > 0)
-		return('@');
-	else
-	{
-		acl = acl_get_file(fpath, ACL_TYPE_EXTENDED);
-		if (acl != NULL)
-			return('+');
-		else
-			return(' ');
-	}
-}
-
-void 	*ft_get_acc_rights(t_dir ent, t_stat buff)
+void	*ft_get_acc_rights(t_dir ent, t_stat buff)
 {
 	char	*tmp;
 
@@ -38,7 +32,7 @@ void 	*ft_get_acc_rights(t_dir ent, t_stat buff)
 	return (tmp);
 }
 
-void 	*ft_get_acc_rights_f(t_stat buff)
+void	*ft_get_acc_rights_f(t_stat buff)
 {
 	char	*tmp;
 
@@ -58,11 +52,11 @@ void 	*ft_get_acc_rights_f(t_stat buff)
 	return (tmp);
 }
 
-void	ft_set_data_f(t_dir *ent, t_stat buff, int j, t_ls *flags)
+void	ft_set_data_f(t_stat buff, int j, t_ls *flags)
 {
-	char *buffer;
-	struct group  *gr;
-	t_passwd 	*pw;
+	char		*buffer;
+	t_group		*gr;
+	t_passwd	*pw;
 
 	flags->sizes[j] = ft_itoa(buff.st_size);
 	flags->times[j] = buff.st_mtime;
@@ -79,9 +73,9 @@ void	ft_set_data_f(t_dir *ent, t_stat buff, int j, t_ls *flags)
 
 void	ft_set_data(t_dir *ent, t_stat buff, int j, t_ls *flags)
 {
-	char *buffer;
-	struct group  *gr;
-	t_passwd 	*pw;
+	char		*buffer;
+	t_group		*gr;
+	t_passwd	*pw;
 
 	flags->sizes[j] = ft_itoa(buff.st_size);
 	flags->times[j] = buff.st_mtime;
@@ -96,16 +90,17 @@ void	ft_set_data(t_dir *ent, t_stat buff, int j, t_ls *flags)
 	flags->block += buff.st_blocks;
 }
 
-void ft_error_handle(t_stat	buff, char *dir_name)
+void	ft_error_handle(t_stat buff, char *dir_name)
 {
-	if(!(buff.st_mode) || buff.st_mode == 32767)
+	if (!(buff.st_mode) || buff.st_mode == 32767)
 	{
-        ft_printf("ls: %s: No such file or directory\n", dir_name);
+		ft_printf("ls: %s: No such file or directory\n", dir_name);
 		return ;
 	}
-	if(!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR) && !(buff.st_mode & S_IXUSR))
+	if (!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR)
+	&& !(buff.st_mode & S_IXUSR))
 	{
-        ft_printf("ls: %s: Permisson denied\n", (dir_name));
-		return;
+		ft_printf("ls: %s: Permisson denied\n", (dir_name));
+		return ;
 	}
 }
