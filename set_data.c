@@ -12,11 +12,8 @@
 
 #include "ft_ls.h"
 
-void	*ft_get_acc_rights(t_dir ent, t_stat buff)
+void	ft_get_acc_rights(t_dir ent, t_stat buff, char *tmp)
 {
-	char	*tmp;
-
-	tmp = (char*)malloc(sizeof(char) * 11);
 	tmp[0] = ft_get_type(ent);
 	tmp[1] = (buff.st_mode & S_IRUSR) ? 'r' : '-';
 	tmp[2] = (buff.st_mode & S_IWUSR) ? 'w' : '-';
@@ -29,14 +26,10 @@ void	*ft_get_acc_rights(t_dir ent, t_stat buff)
 	tmp[9] = (buff.st_mode & S_IXOTH) ? 'x' : '-';
 	tmp[10] = ft_check_xrights(ent.d_name);
 	tmp[11] = 0;
-	return (tmp);
 }
 
-void	*ft_get_acc_rights_f(t_stat buff)
+void	ft_get_acc_rights_f(t_stat buff, char *tmp)
 {
-	char	*tmp;
-
-	tmp = (char*)malloc(sizeof(char) * 11);
 	tmp[0] = buff.st_mode == 41453 ? 'l' : '-';
 	tmp[1] = (buff.st_mode & S_IRUSR) ? 'r' : '-';
 	tmp[2] = (buff.st_mode & S_IWUSR) ? 'w' : '-';
@@ -49,7 +42,6 @@ void	*ft_get_acc_rights_f(t_stat buff)
 	tmp[9] = (buff.st_mode & S_IXOTH) ? 'x' : '-';
 	tmp[10] = ' ';
 	tmp[11] = 0;
-	return (tmp);
 }
 
 void	ft_set_data_f(t_stat buff, int j, t_ls *flags)
@@ -67,7 +59,7 @@ void	ft_set_data_f(t_stat buff, int j, t_ls *flags)
 	flags->owner[j] = pw->pw_name;
 	gr = getgrgid(buff.st_gid);
 	flags->group[j] = gr->gr_name;
-	flags->acc_right[j] = ft_get_acc_rights_f(buff);
+	ft_get_acc_rights_f(buff, flags->acc_right[j]);
 	flags->block += buff.st_blocks;
 }
 
@@ -86,7 +78,7 @@ void	ft_set_data(t_dir *ent, t_stat buff, int j, t_ls *flags)
 	flags->owner[j] = pw->pw_name;
 	gr = getgrgid(buff.st_gid);
 	flags->group[j] = gr->gr_name;
-	flags->acc_right[j] = ft_get_acc_rights(*ent, buff);
+	ft_get_acc_rights(*ent, buff, flags->acc_right[j]);
 	flags->block += buff.st_blocks;
 }
 

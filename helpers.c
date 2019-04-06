@@ -38,12 +38,12 @@ int		ft_find_len_for_output(char **names, int del)
 	return (max_len);
 }
 
-int		ft_count_words(t_ls flags)
+int		ft_count_words(t_ls *flags)
 {
 	int i;
 
 	i = 0;
-	while (flags.files[i])
+	while (flags->files[i])
 		i++;
 	return (i);
 }

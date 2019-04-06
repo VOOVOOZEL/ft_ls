@@ -43,32 +43,32 @@ void	ft_get_time(t_date *date, char *tmp)
 	date->time[5] = 0;
 }
 
-void	ft_bonus_time(time_t *dif, int i, char **tmp, t_ls flags)
+void	ft_bonus_time(time_t *dif, int i, char **tmp, t_ls *flags)
 {
 	time_t	rawtime;
 
 	time(&rawtime);
-	if (flags.u)
+	if (flags->u)
 	{
-		*dif = rawtime - flags.atimes[i];
-		*tmp = ctime(&flags.atimes[i]);
+		*dif = rawtime - flags->atimes[i];
+		*tmp = ctime(&flags->atimes[i]);
 	}
-	if (flags.ul)
+	if (flags->ul)
 	{
-		*dif = rawtime - flags.ctimes[i];
-		*tmp = ctime(&flags.ctimes[i]);
+		*dif = rawtime - flags->ctimes[i];
+		*tmp = ctime(&flags->ctimes[i]);
 	}
 }
 
-void	ft_parse_date(t_ls flags, int i, t_date *date)
+void	ft_parse_date(t_ls *flags, int i, t_date *date)
 {
 	char	*tmp;
 	time_t	rawtime;
 	time_t	dif;
 
 	time(&rawtime);
-	dif = rawtime - flags.times[i];
-	tmp = ctime(&flags.times[i]);
+	dif = rawtime - flags->times[i];
+	tmp = ctime(&flags->times[i]);
 	ft_bonus_time(&dif, i, &tmp, flags);
 	date->month[0] = tmp[4];
 	date->month[1] = tmp[5];

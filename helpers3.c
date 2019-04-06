@@ -1,35 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   helpers3.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lbrown-b <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/04/04 22:02:46 by lbrown-b          #+#    #+#             */
-/*   Updated: 2019/04/04 22:30:20 by lbrown-b         ###   ########.fr       */
+/*   Created: 2019/04/05 12:44:13 by lbrown-b          #+#    #+#             */
+/*   Updated: 2019/04/05 12:44:14 by lbrown-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-int		main(int ac, const char **av)
+void	ft_add_slash(int j, t_ls *flags)
 {
-	int		j;
-	int		dir_nbr;
-	t_ls	flags;
-	t_stat	buff;
+	char	*typ;
 
-	dir_nbr = -1;
-	ft_push_struct(&flags);
-	ft_parse_flags(&flags, av);
-	ft_parse_dirs(&flags, av);
-	j = -1;
-	if (flags.rl)
-		ft_handle_r(flags, buff);
-	if (!(flags.path[++j]))
-		ft_get_files(ft_strdup("."), flags);
-	dir_nbr = ft_count_dirs(&flags, buff);
-	if ((flags.one))
-		ft_handle_one(flags, dir_nbr);
-	ft_handle_common(&flags, dir_nbr);
+	typ = ft_strjoin(flags->files[j], "/");
+	free(flags->files[j]);
+	flags->files[j] = typ;
+}
+
+void	ft_free_gen(char **gen_path)
+{
+	int	i;
+
+	i = -1;
+	while (gen_path[++i])
+		free(gen_path[i]);
+}
+
+void	ft_swap_data(char s1[11], char s2[11])
+{
+	int		i;
+	char	tmp;
+
+	i = -1;
+	while (++i < 11)
+	{
+		tmp = s1[i];
+		s1[i] = s2[i];
+		s2[i] = tmp;
+	}
 }

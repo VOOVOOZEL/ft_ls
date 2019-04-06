@@ -14,9 +14,10 @@
 
 void	ft_wrong_flag(t_ls *flags, char str)
 {
-	if (flags->files)
+	if (str)
 		ft_printf("ls: illegal option -- %c\n", str);
 	ft_printf("usage: ls [%s] [file ...]", ALF);
+	exit(1);
 }
 
 void	ft_base_flags(char str, t_ls *flags)

@@ -12,7 +12,7 @@
 
 #include "ft_ls.h"
 
-void	ft_print_files(t_ls flags)
+void	ft_print_files(t_ls *flags)
 {
 	int	i;
 	int	j;
@@ -22,7 +22,7 @@ void	ft_print_files(t_ls flags)
 
 	i = -1;
 	j = -1;
-	max_len = ft_find_len_for_output(flags.files, 8);
+	max_len = ft_find_len_for_output(flags->files, 8);
 	term_len = ft_size_term();
 	if (max_len)
 		nbr_words_in_row = term_len / max_len;
@@ -30,7 +30,11 @@ void	ft_print_files(t_ls flags)
 	i = -1;
 	j = ft_count_words(flags);
 	while (++i < j)
-		free(flags.files[i]);
+	{
+		free(flags->files[i]);
+		free(flags->sizes[i]);
+		free(flags->hd_links[i]);
+	}
 }
 
 char	ft_check_xrights(char *fpath)
@@ -49,4 +53,36 @@ char	ft_check_xrights(char *fpath)
 		else
 			return (' ');
 	}
+}
+
+void	ft_print_column(t_ls *flags, int n_w)
+{
+	int i;
+
+	i = -1;
+	if (flags->r)
+	{
+		while (n_w--)
+			ft_printf("%s\n", flags->files[n_w]);
+	}
+	else
+	{
+		while (++i < n_w)
+			ft_printf("%s\n", flags->files[i]);
+	}
+}
+
+void	ft_get_link(char *dir_name, t_ls *flags, int j)
+{
+	char	buffer[100];
+	char	*tmp;
+
+	ft_bzero(buffer, 100);
+	readlink(dir_name, buffer, 100);
+	tmp = ft_strjoin(flags->files[j], " -> ");
+	free(flags->files[j]);
+	flags->files[j] = tmp;
+	tmp = ft_strjoin(flags->files[j], buffer);
+	free(flags->files[j]);
+	flags->files[j] = tmp;
 }
