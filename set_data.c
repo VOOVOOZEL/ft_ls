@@ -44,13 +44,43 @@ void	ft_get_acc_rights_f(t_stat buff, char *tmp)
 	tmp[11] = 0;
 }
 
+void	ft_get_minor(t_stat *buff, int j, t_ls *flags)
+{
+	int				len;
+	char			*tmp;
+	char			*tmp2;
+	unsigned int	dev_major;
+	unsigned int	dev_minor;
+
+	dev_major = major(buff->st_rdev);
+	dev_minor = minor(buff->st_rdev);
+	tmp = ft_itoa(dev_major);
+	flags->sizes[j] = ft_strjoin(tmp, ", ");
+	free(tmp);
+	tmp = ft_itoa(dev_minor);
+	len = ft_strlen(tmp);
+	if (len < 3)
+		while (len < 3)
+		{
+			tmp2 = flags->sizes[j];
+			flags->sizes[j] = ft_strjoin(flags->sizes[j], " ");
+			free(tmp2);
+			len++;
+		}
+	flags->sizes[j] = ft_strjoin(flags->sizes[j], tmp);
+	free(tmp);
+}
+
 void	ft_set_data_f(t_stat buff, int j, t_ls *flags)
 {
 	char		*buffer;
 	t_group		*gr;
 	t_passwd	*pw;
 
-	flags->sizes[j] = ft_itoa(buff.st_size);
+	if (!S_ISREG(buff.st_mode) && !S_ISDIR(buff.st_mode))
+		ft_get_minor(&buff, j, flags);
+	else
+		flags->sizes[j] = ft_itoa(buff.st_size);
 	flags->times[j] = buff.st_mtime;
 	flags->atimes[j] = buff.st_atime;
 	flags->ctimes[j] = buff.st_ctime;
@@ -69,7 +99,10 @@ void	ft_set_data(t_dir *ent, t_stat buff, int j, t_ls *flags)
 	t_group		*gr;
 	t_passwd	*pw;
 
-	flags->sizes[j] = ft_itoa(buff.st_size);
+	if (!S_ISREG(buff.st_mode) && !S_ISDIR(buff.st_mode))
+		ft_get_minor(&buff, j, flags);
+	else
+		flags->sizes[j] = ft_itoa(buff.st_size);
 	flags->times[j] = buff.st_mtime;
 	flags->atimes[j] = buff.st_atime;
 	flags->ctimes[j] = buff.st_ctime;
@@ -80,19 +113,4 @@ void	ft_set_data(t_dir *ent, t_stat buff, int j, t_ls *flags)
 	flags->group[j] = gr->gr_name;
 	ft_get_acc_rights(*ent, buff, flags->acc_right[j]);
 	flags->block += buff.st_blocks;
-}
-
-void	ft_error_handle(t_stat buff, char *dir_name)
-{
-	if (!(buff.st_mode) || buff.st_mode == 32767)
-	{
-		ft_printf("ls: %s: No such file or directory\n", dir_name);
-		return ;
-	}
-	if (!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR)
-	&& !(buff.st_mode & S_IXUSR))
-	{
-		ft_printf("ls: %s: Permisson denied\n", (dir_name));
-		return ;
-	}
 }

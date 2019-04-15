@@ -27,6 +27,17 @@ void	ft_parse_dirs(t_ls *flags, const char **av)
 		flags->p_st_m[j] = buff.st_mode;
 	}
 	flags->path[++j] = NULL;
+	i = -1;
+	while (flags->path[++i])
+	{
+		j = -1;
+		while (flags->path[++j])
+			if (S_ISDIR(flags->p_st_m[j]) && flags->path[j + 1])
+			{
+				ft_swap(&flags->path[j], &flags->path[j + 1]);
+				ft_swap_int(&flags->p_st_m[j], &flags->p_st_m[j + 1]);
+			}
+	}
 }
 
 int		ft_count_dirs(t_ls *flags, t_stat buff)
@@ -35,80 +46,70 @@ int		ft_count_dirs(t_ls *flags, t_stat buff)
 
 	dir_nbr = -1;
 	while (flags->path[++flags->fls])
-	{
-		lstat(flags->path[flags->fls], &buff);
-		if (!S_ISDIR(buff.st_mode) && !flags->l
-		&& (buff.st_mode && buff.st_mode != 41453))
-			ft_printf("%s\n", flags->path[flags->fls]);
-		else
-			dir_nbr += 1;
-	}
+		dir_nbr += 1;
 	return (dir_nbr);
 }
 
-void	ft_handle_r(t_ls flags, t_stat buff)
+void	ft_handle_r(t_ls *flags, t_stat buff)
 {
 	int	j;
 	int	dir_nbr;
 
 	j = -1;
-	if (!(flags.path[++j]))
-		ft_get_files_r(ft_strdup("."), flags);
-	dir_nbr = ft_count_dirs(&flags, buff);
-	if (dir_nbr != (flags.fls - 1))
+	if (!(flags->path[++j]))
+		ft_get_files_r(".", flags);
+	dir_nbr = ft_count_dirs(flags, buff);
+	if (dir_nbr != (flags->fls - 1))
 		ft_printf("\n");
 	j = -1;
-	while (flags.path[++j])
+	while (flags->path[++j])
 	{
-		lstat(flags.path[j], &buff);
-		if (S_ISDIR(buff.st_mode))
-		{
-			if (flags.fls > 0)
-				ft_printf("%s:\n", flags.path[j]);
-			ft_get_files_r(flags.path[j], flags);
-			if (dir_nbr--)
-				ft_printf("\n");
-		}
-		free(flags.path[j]);
+		lstat(flags->path[j], &buff);
+		if (flags->fls > 0 && S_ISDIR(buff.st_mode))
+			ft_printf("%s:\n", flags->path[j]);
+		ft_get_files_r(flags->path[j], flags);
+		if (dir_nbr-- && S_ISDIR(flags->p_st_m[j + 1]))
+			ft_printf("\n");
+		free(flags->path[j]);
 	}
 	exit(0);
 }
 
-void	ft_handle_one(t_ls flags, int dir_nbr)
+void	ft_handle_one(t_ls *flags, int dir_nbr)
 {
 	int		j;
 	t_stat	buff;
 
 	j = -1;
-	while (flags.path[++j])
+	while (flags->path[++j])
 	{
-		lstat(flags.path[j], &buff);
-		if (S_ISDIR(buff.st_mode) || buff.st_mode == 41453)
-		{
-			if (dir_nbr > 0)
-				ft_printf("%s:\n", flags.path[j]);
-			ft_get_files(flags.path[j], flags);
-		}
-		if (dir_nbr == (flags.fls - 1))
-			if (dir_nbr - j)
+		lstat(flags->path[j], &buff);
+		if (dir_nbr > 0
+		&& (S_ISDIR(buff.st_mode) || buff.st_mode == 41453))
+			ft_printf("%s:\n", flags->path[j]);
+		ft_get_files(flags->path[j], flags);
+		if (dir_nbr == (flags->fls - 1))
+			if (dir_nbr - j && S_ISDIR(flags->p_st_m[j + 1]))
 				ft_printf("\n");
-		free(flags.path[j]);
+		free(flags->path[j]);
 	}
 	exit(0);
 }
 
 void	ft_handle_common(t_ls *flags, int dir_nbr)
 {
-	int	j;
+	int		j;
+	t_stat	buff;
 
 	j = -1;
 	while (flags->path[++j])
 	{
-		if (j > 0)
+		lstat(flags->path[j], &buff);
+		if (flags->fls > 1 && S_ISDIR(buff.st_mode))
 			ft_printf("%s:\n", flags->path[j]);
 		flags->cur_dir = j;
-		ft_get_files(flags->path[j], *flags);
-		if (dir_nbr - j > 0)
+		ft_get_files(flags->path[j], flags);
+		if (dir_nbr - j > 0 && S_ISDIR(flags->p_st_m[j + 1]))
 			ft_printf("\n");
 		free(flags->path[j]);
 	}

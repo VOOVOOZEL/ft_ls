@@ -28,8 +28,10 @@ int		ft_find_len_for_output(char **names, int del)
 	i = -1;
 	max_len = 0;
 	while (names[++i])
+	{
 		if (ft_strlen(names[i]) > max_len)
 			max_len = ft_strlen(names[i]);
+	}
 	if (!(max_len % del) && del != 1)
 		max_len = 2 * max_len;
 	else
@@ -53,12 +55,8 @@ int		ft_get_nbr_rows(int nbr_words, int nbr_words_in_row, int max_len)
 	int term_len;
 	int	nbr_rows;
 
+	nbr_rows = 1;
 	term_len = ft_size_term();
-	if (nbr_words_in_row == 0)
-	{
-		ft_printf("ls: fts_open: No such file or directory");
-		exit(1);
-	}
 	if (!(nbr_words % nbr_words_in_row)
 	&& ((term_len - (nbr_words_in_row * max_len)) > max_len))
 		nbr_rows = nbr_words;

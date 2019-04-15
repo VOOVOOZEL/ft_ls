@@ -83,5 +83,6 @@ void	ft_sort_alph_and_print(t_ls *flags, int nbr_words_in_row, int max_len)
 	}
 	i = -1;
 	ft_sort_time(nbr_words, flags);
-	ft_make_table(flags, nbr_words, nbr_words_in_row, max_len);
+	if (nbr_words)
+		ft_make_table(flags, nbr_words, nbr_words_in_row, max_len);
 }

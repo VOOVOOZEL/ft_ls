@@ -2,7 +2,7 @@ NAME = ft_ls
 
 HEADER = ft_ls.h
 
-FLAGS = -Wall -Werror -Wextra
+FLAGS = -Wall -Werror -Wextra -fsanitize=address
 
 SOURCES  =	main.c helpers.c handlers.c get_files.c set_data.c create_table.c parse_date.c swap_sort.c detailed_list.c set_flags.c helpers2.c helpers3.c
 
@@ -17,7 +17,7 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	@make -C ft_printf
 	@cp ./ft_printf/$(LIB) ./
-	@gcc -I.. -o $(NAME) $(OBJS) -L. -lftprintf
+	@gcc $(FLAGS) -I.. -o $(NAME) $(OBJS) -L. -lftprintf
 
 %.o : $(DIR_S)/%.c
 	@gcc $(FLAGS) -I $(HEADER) -c  $(SRC)

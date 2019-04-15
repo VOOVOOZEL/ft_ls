@@ -25,6 +25,7 @@
 # include <sys/ioctl.h>
 # include "./ft_printf/printf/libftprintf.h"
 # define ALF "-ABCFGHLOPRSTUWabcdefghiklmnopqrstuwx1"
+# define PUPA 20480
 
 typedef struct dirent	t_dir;
 typedef struct winsize	t_win;
@@ -45,20 +46,20 @@ typedef struct			s_ls
 	int					ul;
 	int					l_f;
 	int					dash;
-	char				*path[2000];
-	char				*files[2000];
+	char				*path[PUPA];
+	char				*files[PUPA];
 	char				***table;
-	time_t				times[2000];
-	time_t				ctimes[2000];
-	time_t				atimes[2000];
-	char				acc_right[2000][12];
-	char				*sizes[2000];
-	char				*owner[2000];
-	char				*group[2000];
-	char				*hd_links[2000];
-	char				*r_path[2000];
+	time_t				times[PUPA];
+	time_t				ctimes[PUPA];
+	time_t				atimes[PUPA];
+	char				acc_right[PUPA][12];
+	char				*sizes[PUPA];
+	char				*owner[PUPA];
+	char				*group[PUPA];
+	char				*hd_links[PUPA];
+	char				*r_path[PUPA];
 	int					block;
-	int					p_st_m[2000];
+	int					p_st_m[PUPA];
 	int					fls;
 	int					cur_dir;
 }						t_ls;
@@ -77,14 +78,14 @@ int						ft_count_words(t_ls *flags);
 int						ft_find_len_for_output(char **names, int del);
 int						ft_size_term();
 void					ft_handle_common(t_ls *flags, int dir_nbr);
-void					ft_handle_one(t_ls flags, int dir_nbr);
-void					ft_handle_r(t_ls flags, t_stat buff);
+void					ft_handle_one(t_ls *flags, int dir_nbr);
+void					ft_handle_r(t_ls *flags, t_stat buff);
 int						ft_count_dirs(t_ls *flags, t_stat buff);
 void					ft_parse_dirs(t_ls *flags, const char **av);
-void					ft_get_files(char *dir_name, t_ls flags);
-int						ft_get_dirs(char *dir_name, t_ls flags,
+void					ft_get_files(char *dir_name, t_ls *flags);
+int						ft_get_dirs(char *dir_name, t_ls *flags,
 						char **gen_path, DIR *dir);
-void					ft_get_files_r(char *dir_name, t_ls flags);
+void					ft_get_files_r(char *dir_name, t_ls *flags);
 char					ft_check_xrights(char *fpath);
 void					ft_get_acc_rights(t_dir ent, t_stat buff, char *tmp);
 void					ft_get_acc_rights_f(t_stat buff, char *tmp);
@@ -125,4 +126,5 @@ void					ft_get_link(char *dir_name, t_ls *flags, int j);
 void					ft_free_gen(char **gen_path);
 void					ft_add_slash(int j, t_ls *flags);
 void					ft_swap_data(char s1[11], char s2[11]);
+void					ft_swap_int(int *i, int *j);
 #endif

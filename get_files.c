@@ -27,6 +27,7 @@ void	ft_handle_files(char *dir_name, t_ls *flags)
 		if (flags->l && buff.st_mode == 41453)
 			ft_get_link(dir_name, flags, j);
 	}
+	flags->files[++j] = NULL;
 }
 
 void	ft_handle_dir(t_ls *flags, char *path, t_dir *ent, DIR *dir)
@@ -50,9 +51,10 @@ void	ft_handle_dir(t_ls *flags, char *path, t_dir *ent, DIR *dir)
 				ft_add_slash(j, flags);
 		}
 	}
+	flags->files[++j] = NULL;
 }
 
-void	ft_get_files(char *dir_name, t_ls flags)
+void	ft_get_files(char *dir_name, t_ls *flags)
 {
 	DIR		*dir;
 	t_dir	*ent;
@@ -60,24 +62,23 @@ void	ft_get_files(char *dir_name, t_ls flags)
 	char	*path;
 
 	path = ft_strjoin(dir_name, "/");
-	ft_bzero(flags.files, 1024);
 	lstat(dir_name, &buff);
 	ft_error_handle(buff, dir_name);
 	if ((!(dir = opendir(dir_name))
 	&& (buff.st_mode != 32767 && buff.st_mode != 16384) && buff.st_mode))
-		ft_handle_files(dir_name, &flags);
+		ft_handle_files(dir_name, flags);
 	else if ((buff.st_mode != 32767 && buff.st_mode != 16384)
 	&& buff.st_mode)
-		ft_handle_dir(&flags, path, ent, dir);
+		ft_handle_dir(flags, path, ent, dir);
 	free(path);
 	if (dir)
 		closedir(dir);
-	if (!(flags.files[0]))
+	if (!(flags->files[0]))
 		return ;
-	ft_print_files(&flags);
+	ft_print_files(flags);
 }
 
-int		ft_get_dirs(char *dir_name, t_ls flags, char **gen_path, DIR *dir)
+int		ft_get_dirs(char *dir_name, t_ls *flags, char **gen_path, DIR *dir)
 {
 	int		i;
 	char	*path;
@@ -89,8 +90,11 @@ int		ft_get_dirs(char *dir_name, t_ls flags, char **gen_path, DIR *dir)
 		if ((ent->d_type == DT_DIR && ft_strcmp(ent->d_name, ".")
 		&& ft_strcmp(ent->d_name, "..")))
 		{
-			path = ft_strjoin(dir_name, "/");
-			if (ent->d_name[0] != '.' || flags.a)
+			if (ft_strcmp(dir_name, "/"))
+				path = ft_strjoin(dir_name, "/");
+			else
+				path = ft_strdup("/");
+			if (ent->d_name[0] != '.' || flags->a)
 			{
 				gen_path[++i] = ft_strjoin(path, ent->d_name);
 				gen_path[i + 1] = NULL;
@@ -103,7 +107,7 @@ int		ft_get_dirs(char *dir_name, t_ls flags, char **gen_path, DIR *dir)
 	return (i);
 }
 
-void	ft_get_files_r(char *dir_name, t_ls flags)
+void	ft_get_files_r(char *dir_name, t_ls *flags)
 {
 	DIR		*dir;
 	char	*gen_path[1024];
@@ -114,7 +118,7 @@ void	ft_get_files_r(char *dir_name, t_ls flags)
 	if (!(dir = opendir(dir_name)))
 		return ;
 	i = ft_get_dirs(dir_name, flags, gen_path, dir);
-	if (flags.r && i != -1)
+	if (flags->r && i != -1)
 	{
 		while (i >= 0 && ft_printf("\n%s%s\n", gen_path[i], ":"))
 		{

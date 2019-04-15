@@ -25,11 +25,11 @@ int		main(int ac, const char **av)
 	ft_parse_dirs(&flags, av);
 	j = -1;
 	if (flags.rl)
-		ft_handle_r(flags, buff);
+		ft_handle_r(&flags, buff);
 	if (!(flags.path[++j]))
-		ft_get_files(ft_strdup("."), flags);
+		ft_get_files(".", &flags);
 	dir_nbr = ft_count_dirs(&flags, buff);
 	if ((flags.one))
-		ft_handle_one(flags, dir_nbr);
+		ft_handle_one(&flags, dir_nbr);
 	ft_handle_common(&flags, dir_nbr);
 }

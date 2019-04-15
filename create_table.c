@@ -74,8 +74,12 @@ void	ft_create_table(int nbr_rows, int n_w, t_ls *flags, int n_w_in_r)
 	k = 0;
 	j = -1;
 	flags->table = (char***)malloc(sizeof(char**) * (nbr_rows + 1));
+	ft_bzero(flags->table, (nbr_rows + 1) * sizeof(char**));
 	while (++j < nbr_rows)
+	{
 		flags->table[j] = (char**)malloc(sizeof(char*) * (n_w + 1));
+		ft_bzero(flags->table[j], (n_w + 1) * sizeof(char*));
+	}
 	if (!flags->r && !flags->one && !flags->l)
 		ft_fill_f_table(n_w_in_r, nbr_rows, n_w, flags);
 	else if (flags->files[0] && !flags->one && !flags->l)

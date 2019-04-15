@@ -18,15 +18,17 @@ void	ft_print_detailed_list(t_ls *flags, int i)
 	int		len_links;
 	int		len_owner;
 	int		len_sizes;
+	int		len_group;
 
 	len_links = ft_find_len_for_output(flags->hd_links, 1);
-	len_owner = ft_find_len_for_output(flags->owner, 5);
+	len_owner = ft_find_len_for_output(flags->owner, 3);
 	len_sizes = ft_find_len_for_output(flags->sizes, 1);
+	len_group = ft_find_len_for_output(flags->group, 5);
 	ft_parse_date(flags, i, &date);
 	ft_printf("%s ", flags->acc_right[i]);
 	ft_printf("%*s ", (len_links), flags->hd_links[i]);
-	ft_printf("%s  ", flags->owner[i]);
-	ft_printf("%s ", flags->group[i]);
+	ft_printf("%-*s ", (len_owner), flags->owner[i]);
+	ft_printf("%-*s", (len_group), flags->group[i]);
 	ft_printf("%*s ", (len_sizes + 1), flags->sizes[i]);
 	ft_printf("%s %s %s ", date.month, date.day, date.time);
 	ft_printf("%s\n", flags->files[i]);
@@ -73,4 +75,8 @@ void	ft_push_struct(t_ls *flags)
 	flags->l_f = 0;
 	flags->fls = -1;
 	flags->block = 0;
+	ft_bzero(flags->files, sizeof(char*) * PUPA);
+	ft_bzero(flags->sizes, sizeof(char*) * PUPA);
+	ft_bzero(flags->hd_links, sizeof(char*) * PUPA);
+	ft_bzero(flags->owner, sizeof(char*) * PUPA);
 }

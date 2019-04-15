@@ -15,21 +15,21 @@
 void	ft_print_files(t_ls *flags)
 {
 	int	i;
-	int	j;
 	int	max_len;
 	int	term_len;
 	int	nbr_words_in_row;
 
 	i = -1;
-	j = -1;
+	term_len = 0;
 	max_len = ft_find_len_for_output(flags->files, 8);
 	term_len = ft_size_term();
-	if (max_len)
+	if (term_len > max_len && max_len && term_len)
 		nbr_words_in_row = term_len / max_len;
+	else
+		nbr_words_in_row = 1;
 	ft_sort_alph_and_print(flags, nbr_words_in_row, max_len);
 	i = -1;
-	j = ft_count_words(flags);
-	while (++i < j)
+	while (flags->files[++i])
 	{
 		free(flags->files[i]);
 		free(flags->sizes[i]);

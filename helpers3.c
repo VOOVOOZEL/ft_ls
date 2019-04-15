@@ -43,3 +43,27 @@ void	ft_swap_data(char s1[11], char s2[11])
 		s2[i] = tmp;
 	}
 }
+
+void	ft_swap_int(int *i, int *j)
+{
+	int tmp;
+
+	tmp = *i;
+	*i = *j;
+	*j = tmp;
+}
+
+void	ft_error_handle(t_stat buff, char *dir_name)
+{
+	if (!(buff.st_mode) || buff.st_mode == 32767)
+	{
+		ft_printf("ls: %s: No such file or directory\n", dir_name);
+		return ;
+	}
+	if (!(buff.st_mode & S_IWUSR) && !(buff.st_mode & S_IRUSR)
+	&& !(buff.st_mode & S_IXUSR))
+	{
+		ft_printf("ls: %s: Permisson denied\n", (dir_name));
+		return ;
+	}
+}
